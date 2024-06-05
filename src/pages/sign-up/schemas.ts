@@ -13,6 +13,7 @@ export const signUpFormSchema = z
       .email("O campo email deve ser um email válido"),
     password: z
       .string()
+      .min(1, "O campo senha é obrigatório")
       .min(8, {
         message: "O campo senha deve conter pelo menos 8 caracteres.",
       })
@@ -28,7 +29,7 @@ export const signUpFormSchema = z
     confirmPassword: z.string().min(1, "O campo confirmar senha é obrigatório"),
   })
   .refine(({ password, confirmPassword }) => password === confirmPassword, {
-    message: "Senhas não coincidem",
+    message: "As senhas não coincidem",
     path: ["confirmPassword"],
   });
 

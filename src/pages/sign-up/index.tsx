@@ -1,14 +1,19 @@
+import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form"
-
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-
-import { SignUpFormSchema, signUpFormSchema } from "./schemas";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+import { SignUpFormSchema, signUpFormSchema } from "./schemas";
+
 export function SignUpPage() {
+
+    const [passwordIsVisible, setPasswordIsVisible] = useState(false)
 
     const form = useForm<SignUpFormSchema>({
         resolver: zodResolver(signUpFormSchema),
@@ -78,7 +83,7 @@ export function SignUpPage() {
                             <FormControl>
                                 <Input
                                     placeholder="********"
-                                    type="password"
+                                    type={passwordIsVisible ? "text" : "password"}
                                     className="bg-blue-950 bg-opacity-10 pb-0 text-gray-300"
                                     {...field}
                                 />
@@ -91,18 +96,29 @@ export function SignUpPage() {
                     control={form.control}
                     name="confirmPassword"
                     render={({ field }) => (
-                        <FormItem className="w-full">
-                            <FormLabel className="text-slate-300">Confirmar senha</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="********"
-                                    type="password"
-                                    className="bg-blue-950 bg-opacity-10 pb-0 text-gray-300"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
+                        <>
+                            <FormItem className="w-full">
+                                <FormLabel className="text-slate-300">Confirmar senha</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="********"
+                                        type={passwordIsVisible ? "text" : "password"}
+                                        className="bg-blue-950 bg-opacity-10 pb-0 text-gray-300"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            <div className="flex justify-start items-center space-x-2 pl-2 w-full">
+                                <Checkbox id="show-password" className="bg-slate-400" onCheckedChange={() => setPasswordIsVisible(!passwordIsVisible)} />
+                                <label
+                                    htmlFor="show-password"
+                                    className="peer-disabled:opacity-70 font-medium text-slate-300 text-sm leading-none peer-disabled:cursor-not-allowed"
+                                >
+                                    Mostrar senha
+                                </label>
+                            </div>
+                        </>
                     )}
                 />
                 <div className="flex sm:flex-row flex-col items-center gap-2 md:gap-1 pb-2 text-gray-400 hover:text-gray-300 duration-500">

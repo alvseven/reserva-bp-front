@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
@@ -15,10 +17,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { type SignInFormData, signInFormSchema } from "./schemas";
 
 export function SignInPage() {
+
+    const [passwordIsVisible, setPasswordIsVisible] = useState(false)
+
     const form = useForm<SignInFormData>({
         resolver: zodResolver(signInFormSchema),
         defaultValues: {
@@ -91,18 +97,29 @@ export function SignInPage() {
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                        <FormItem className="w-full">
-                            <FormLabel className="text-slate-300">Senha</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="********"
-                                    type="password"
-                                    className="bg-blue-950 bg-opacity-10 pb-0 text-gray-300"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
+                        <>
+                            <FormItem className="w-full">
+                                <FormLabel className="text-slate-300">Senha</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="********"
+                                        type={passwordIsVisible ? "text" : "password"}
+                                        className="bg-blue-950 bg-opacity-10 pb-0 text-gray-300"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            <div className="flex justify-start items-center space-x-2 pl-2 w-full">
+                                <Checkbox id="show-password" className="bg-slate-400" onCheckedChange={() => setPasswordIsVisible(!passwordIsVisible)} />
+                                <label
+                                    htmlFor="show-password"
+                                    className="peer-disabled:opacity-70 font-medium text-slate-300 text-sm leading-none peer-disabled:cursor-not-allowed"
+                                >
+                                    Mostrar senha
+                                </label>
+                            </div>
+                        </>
                     )}
                 />
                 <div className="flex sm:flex-row flex-col justify-center items-center gap-2 md:gap-1 pb-2 w-full text-gray-400 hover:text-gray-300 duration-500">
