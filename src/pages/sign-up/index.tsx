@@ -47,7 +47,7 @@ export function SignUpPage() {
                             <FormControl>
                                 <Input
                                     placeholder="alv"
-                                    className="bg-blue-950 bg-opacity-10 text-gray-300"
+                                    className="bg-blue-950 bg-opacity-30 text-gray-300"
                                     spellCheck={false}
                                     {...field}
                                 />
@@ -65,7 +65,7 @@ export function SignUpPage() {
                             <FormControl>
                                 <Input
                                     placeholder="reservabp@email.com"
-                                    className="bg-blue-950 bg-opacity-10 pb-0 text-gray-300"
+                                    className="bg-blue-950 bg-opacity-30 pb-0 text-gray-300"
                                     spellCheck={false}
                                     {...field}
                                 />
@@ -84,7 +84,7 @@ export function SignUpPage() {
                                 <Input
                                     placeholder="********"
                                     type={passwordIsVisible ? "text" : "password"}
-                                    className="bg-blue-950 bg-opacity-10 pb-0 text-gray-300"
+                                    className="bg-blue-950 bg-opacity-30 pb-0 text-gray-300"
                                     {...field}
                                 />
                             </FormControl>
@@ -103,7 +103,7 @@ export function SignUpPage() {
                                     <Input
                                         placeholder="********"
                                         type={passwordIsVisible ? "text" : "password"}
-                                        className="bg-blue-950 bg-opacity-10 pb-0 text-gray-300"
+                                        className="bg-blue-950 bg-opacity-30 pb-0 text-gray-300"
                                         {...field}
                                     />
                                 </FormControl>
