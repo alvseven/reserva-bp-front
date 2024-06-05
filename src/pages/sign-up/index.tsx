@@ -115,7 +115,7 @@ export function SignUpPage() {
                                     htmlFor="show-password"
                                     className="peer-disabled:opacity-70 font-medium text-slate-300 text-sm leading-none peer-disabled:cursor-not-allowed"
                                 >
-                                    Mostrar senha
+                                    Mostrar senhas
                                 </label>
                             </div>
                         </>
