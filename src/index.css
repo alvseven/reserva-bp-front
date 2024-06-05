@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background: #172554;
+    font-family: "Poppins", sans-serif;
+    background-image: url('./assets/noisy.png');
+    background-size: cover;
+    background-blend-mode: overlay;
+}
