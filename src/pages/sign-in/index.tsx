@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 
 import {
@@ -25,6 +25,8 @@ export function SignInPage() {
 
     const [passwordIsVisible, setPasswordIsVisible] = useState(false)
 
+    const navigate = useNavigate()
+
     const form = useForm<SignInFormData>({
         resolver: zodResolver(signInFormSchema),
         defaultValues: {
@@ -43,6 +45,7 @@ export function SignInPage() {
                 title: "Seja bem vindo",
                 description: "Login realizado com sucesso",
             });
+            navigate('/dashboard')
         } catch (error) {
             if (error instanceof AxiosError && error.status) {
                 const toastTitle =
