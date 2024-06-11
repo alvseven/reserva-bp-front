@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,65 +15,43 @@ import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 
 import { cn } from "@/lib/utils";
-import { type CreateSchedulingData, schedulingSchema } from "./schemas/scheduling-schema";
-import { formatDate } from "@/helpers/format-date";
 
-const insuranceBrokers = [
-    {
-        id: 1,
-        name: "Maria Silva",
-    },
-    {
-        id: 2,
-        name: "João Oliveira Pereira",
-    },
-    {
-        id: 3,
-        name: "Ana Souza Beatriz",
-    },
-    {
-        id: 4,
-        name: "Carlos Eduardo de Oliveira",
-    },
-    {
-        id: 5,
-        name: "Fernanda Costa Lima",
-    },
-    {
-        id: 6,
-        name: "Pedro Santos",
-    },
-    {
-        id: 7,
-        name: "Mariana Oliveira",
-    },
-    {
-        id: 8,
-        name: "Gustavo Lima",
-    },
-    {
-        id: 9,
-        name: "Larissa Santos",
-    },
-];
+import { InsuranceBrokers, getInsuranceBrokers } from "@/services/get-insurance-brokers";
+import { type CreateSchedulingData, schedulingSchema } from "./schemas/scheduling";
+import { formatDate } from "@/helpers/format-date";
 
 export function Scheduling() {
 
     const [dialogIsOpen, setDialogIsOpen] = useState(false)
+    const [insuranceBrokers, setInsuranceBrokers] = useState<InsuranceBrokers>([])
+
+    useEffect(() => {
+        (async () => {
+            const token = localStorage.getItem('@reserva-bp:token')
+            if (token) {
+                try {
+                    const response = await getInsuranceBrokers(token)
+                    setInsuranceBrokers(response)
+                }
+                catch (error) {
+                    console.log('error: ', error)
+                }
+            }
+        })()
+    }, [])
 
     const form = useForm<CreateSchedulingData>({
         resolver: zodResolver(schedulingSchema),
         defaultValues: {
             insuranceBrokerId: "",
-            date: dayjs(new Date()),
+            date: Date(),
             time: ""
         },
     })
 
     const { toast } = useToast()
 
-
-    function signUp(data: CreateSchedulingData) {
+    function createScheduling(data: CreateSchedulingData) {
         try {
             console.log('data: ', data)
             toast({
@@ -81,8 +59,8 @@ export function Scheduling() {
                 description: `Seu para o dia ${data.date} às ${data.time} foi agendado com sucesso`,
                 className: "max-w-[40rem]"
             })
-            form.reset()
-            setDialogIsOpen(false)
+            // form.reset()
+            // setDialogIsOpen(false)
         }
         catch (error) {
             console.log('Error: ', error)
@@ -90,14 +68,14 @@ export function Scheduling() {
     }
 
     function closeDialog() {
-        form.formState.isValid ? form.reset() : form.clearErrors()
+        form.reset()
         setDialogIsOpen(false)
     }
 
     return (
         <Dialog open={dialogIsOpen} onOpenChange={() => setDialogIsOpen(!dialogIsOpen)}>
             <DialogTrigger asChild className="bg-transparent">
-                <Button variant="outline" className="text-slate-300" >Agendar</Button>
+                <Button variant="outline" className="text-slate-300 text-xs lg:text-sm" >Agendar</Button>
             </DialogTrigger>
             <DialogContent className="bg-slate-950 sm:max-w-[425px]">
                 <DialogHeader className="gap-2">
@@ -108,9 +86,9 @@ export function Scheduling() {
                 </DialogHeader>
                 <Form {...form}>
                     <form
-                        id="create-scheduling"
-                        onSubmit={(form.handleSubmit(signUp))}
                         className="flex flex-col gap-6"
+                        id="create-scheduling"
+                        onSubmit={(form.handleSubmit(createScheduling))}
                     >
                         <FormField
                             control={form.control}
@@ -125,7 +103,7 @@ export function Scheduling() {
                                             </SelectTrigger>
                                             <SelectContent className="max-h-72">
                                                 {insuranceBrokers.map(insuranceBroker => (
-                                                    <SelectItem key={insuranceBroker.id} value={insuranceBroker.name}>{insuranceBroker.name}</SelectItem>
+                                                    <SelectItem key={insuranceBroker._id} value={insuranceBroker._id}>{insuranceBroker.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -182,6 +160,23 @@ export function Scheduling() {
                                     <FormControl>
                                         <Input
                                             placeholder="12:30"
+                                            className="bg-blue-950 bg-opacity-30 pb-0 text-gray-300"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="duration"
+                            render={({ field }) => (
+                                <FormItem className="w-full">
+                                    <FormLabel className="text-slate-300">Duração</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="01:00"
                                             className="bg-blue-950 bg-opacity-30 pb-0 text-gray-300"
                                             {...field}
                                         />

@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
-import { AxiosError } from "axios";
+import { isAxiosError } from "axios";
 
 import {
     Form,
@@ -20,10 +20,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { type SignInFormData, signInFormSchema } from "./schemas";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AuthContext } from "@/providers/auth";
+import { customerLogin } from "@/services/customer-login";
 
 export function SignInPage() {
 
     const [passwordIsVisible, setPasswordIsVisible] = useState(false)
+
+    const { setUser } = useContext(AuthContext)
 
     const navigate = useNavigate()
 
@@ -37,28 +42,25 @@ export function SignInPage() {
 
     const { toast } = useToast();
 
-    function signIn(data: SignInFormData) {
+    async function signIn(data: SignInFormData) {
         try {
-            console.log("Trying to sign in...");
-            console.log("Data: ", data);
-            toast({
-                title: "Seja bem vindo",
-                description: "Login realizado com sucesso",
-            });
+            const userLogged = await customerLogin(data)
+
+            localStorage.setItem('@reserva-bp:token', userLogged.token)
+            setUser(userLogged)
+
             navigate('/dashboard')
         } catch (error) {
-            if (error instanceof AxiosError && error.status) {
+            if (isAxiosError(error) && error.response?.status) {
                 const toastTitle =
-                    error.status === 401 || error.status === 403
+                    error.response.status === 403
                         ? "Falha ao realizar login"
                         : "Oops, algo de errado aconteceu";
 
                 const toastDescription =
-                    error.status === 401
-                        ? "Usuário não encontrado"
-                        : error.status === 403
-                            ? "Email e/ou senha incorretos"
-                            : "Tente realizar o login novamente ";
+                    error.response.status === 403
+                        ? "Email e/ou senha incorretos"
+                        : "Tente realizar o login novamente ";
 
                 toast({
                     title: toastTitle,
@@ -73,7 +75,7 @@ export function SignInPage() {
         <Form {...form}>
             <form
                 onSubmit={form.handleSubmit(signIn)}
-                className="flex flex-col justify-center items-center space-y-8 border-slate-800 bg-slate-950 m-auto my-8 md:mt-12 xl:mt-36 px-12 pt-16 pb-8 border rounded-md w-11/12 md:w-8/12 lg:w-1/2 max-w-[30rem] lg:max-w-[40rem] h-full"
+                className="flex flex-col justify-center items-center space-y-8 border-slate-800 bg-slate-950 m-auto my-8 md:mt-12 xl:mt-16 px-12 pt-16 pb-8 border rounded-md w-11/12 md:w-8/12 lg:w-1/2 max-w-[30rem] lg:max-w-[40rem] h-full"
             >
                 <FormDescription className="text-lg text-pretty text-slate-200 lg:text-2xl">
                     Faça login para continuar
@@ -113,18 +115,39 @@ export function SignInPage() {
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
-                            <div className="flex justify-start items-center space-x-2 pl-2 w-full">
-                                <Checkbox id="show-password" className="bg-slate-400" onCheckedChange={() => setPasswordIsVisible(!passwordIsVisible)} />
-                                <label
-                                    htmlFor="show-password"
-                                    className="peer-disabled:opacity-70 font-medium text-slate-300 text-sm leading-none peer-disabled:cursor-not-allowed"
-                                >
-                                    Mostrar senha
-                                </label>
-                            </div>
                         </>
                     )}
                 />
+                <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                        <FormItem className="w-full h-20">
+                            <FormLabel className="text-slate-300">Tipo de usuário</FormLabel>
+                            <FormControl>
+                                <Select onValueChange={field.onChange}>
+                                    <SelectTrigger className="bg-blue-950 bg-opacity-30 h-12 text-slate-300">
+                                        <SelectValue placeholder="Selecionar" className="text-slate-200" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-72">
+                                        <SelectItem value="customer">Cliente</SelectItem>
+                                        <SelectItem value="insurance-broker">Corretor de seguros</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <div className="flex justify-start items-center space-x-2 pl-2 w-full">
+                    <Checkbox id="show-password" className="bg-slate-400" onCheckedChange={() => setPasswordIsVisible(!passwordIsVisible)} />
+                    <label
+                        htmlFor="show-password"
+                        className="peer-disabled:opacity-70 font-medium text-slate-300 text-sm leading-none peer-disabled:cursor-not-allowed"
+                    >
+                        Mostrar senha
+                    </label>
+                </div>
                 <div className="flex sm:flex-row flex-col justify-center items-center gap-2 md:gap-1 pb-2 w-full text-gray-400 hover:text-gray-300 duration-500">
                     <p>Não possui uma conta?</p>
                     <Link to="/sign-up" className="underline underline-offset-4">

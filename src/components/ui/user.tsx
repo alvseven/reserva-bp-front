@@ -1,10 +1,14 @@
 import { AvatarIcon } from '@radix-ui/react-icons'
 
-export function User() {
-    return <div className='flex items-center gap-4'>
-        <AvatarIcon className='text-slate-300 size-10' />
-        <span className='text-lg text-slate-100'>
-            Samuel Santos
+interface UserProps {
+    name: string
+}
+
+export function User({ name }: UserProps) {
+    return <div className='flex items-center gap-4 lg:gap-2 xl:gap-0' >
+        <AvatarIcon className='w-16 h-8 text-slate-300' />
+        <span className='text-slate-100 text-xs md:text-base'>
+            {name}
         </span>
-    </div>
+    </ div>
 }

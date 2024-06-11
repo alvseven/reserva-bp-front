@@ -1,20 +1,32 @@
-import { type ReactNode, createContext, useEffect, useState } from "react";
+import { type ReactNode, createContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import { useNavigate } from "react-router-dom";
 
 import { getUserLoggedIn } from "@/services/get-user-logged-in";
 
+type Scheduling = {
+    _id: string
+    insuranceBrokerName: string
+    insuranceBrokerId: string
+    date: Date,
+    time: string,
+    duration: string
+    createdAt: Date
+}
+
 type User = {
-    id: string,
-    username: string
+    _id: string,
+    name: string
     email: string
     role: "InsuranceBroker" | 'Customer'
+    schedulings: Scheduling[]
     createdAt: Date
     updatedAt: Date
 }
 
 type AuthProviderData = {
     user: User | null
+    setUser: Dispatch<SetStateAction<User | null>>
 }
 
 export const AuthContext = createContext<AuthProviderData>(
@@ -46,6 +58,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         <AuthContext.Provider
             value={{
                 user,
+                setUser
             }}
         >
             {children}

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 import { SignUpFormSchema, signUpFormSchema } from "./schemas";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function SignUpPage() {
 
@@ -96,31 +97,50 @@ export function SignUpPage() {
                     control={form.control}
                     name="confirmPassword"
                     render={({ field }) => (
-                        <>
-                            <FormItem className="w-full">
-                                <FormLabel className="text-slate-300">Confirmar senha</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="********"
-                                        type={passwordIsVisible ? "text" : "password"}
-                                        className="bg-blue-950 bg-opacity-30 pb-0 text-gray-300"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            <div className="flex justify-start items-center space-x-2 pl-2 w-full">
-                                <Checkbox id="show-password" className="bg-slate-400" onCheckedChange={() => setPasswordIsVisible(!passwordIsVisible)} />
-                                <label
-                                    htmlFor="show-password"
-                                    className="peer-disabled:opacity-70 font-medium text-slate-300 text-sm leading-none peer-disabled:cursor-not-allowed"
-                                >
-                                    Mostrar senhas
-                                </label>
-                            </div>
-                        </>
+                        <FormItem className="w-full">
+                            <FormLabel className="text-slate-300">Confirmar senha</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="********"
+                                    type={passwordIsVisible ? "text" : "password"}
+                                    className="bg-blue-950 bg-opacity-30 pb-0 text-gray-300"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
                     )}
                 />
+                <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                        <FormItem className="w-full h-20">
+                            <FormLabel className="text-slate-300">Tipo de usuário</FormLabel>
+                            <FormControl>
+                                <Select onValueChange={field.onChange} defaultValue="customer" >
+                                    <SelectTrigger className="bg-blue-950 bg-opacity-30 h-12 text-slate-300">
+                                        <SelectValue placeholder="Selecionar" className="text-slate-200" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-72">
+                                        <SelectItem value="customer">Cliente</SelectItem>
+                                        <SelectItem value="insurance-broker">Corretor de seguros</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <div className="flex justify-start items-center space-x-2 pl-2 w-full">
+                    <Checkbox id="show-password" className="bg-slate-400" onCheckedChange={() => setPasswordIsVisible(!passwordIsVisible)} />
+                    <label
+                        htmlFor="show-password"
+                        className="peer-disabled:opacity-70 font-medium text-slate-300 text-sm leading-none peer-disabled:cursor-not-allowed"
+                    >
+                        Mostrar senhas
+                    </label>
+                </div>
                 <div className="flex sm:flex-row flex-col items-center gap-2 md:gap-1 pb-2 text-gray-400 hover:text-gray-300 duration-500">
                     <p>Já possui uma conta?</p>
                     <Link to="/" className="underline underline-offset-4">
