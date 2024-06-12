@@ -9,7 +9,7 @@ const schedulingSchema = z.object({
   date: z.coerce.date(),
   time: z.string(),
   duration: z.string(),
-  status: z.literal("Pendente").or(z.literal("Realizado")),
+  status: z.enum(["Pendente", "Realizado"]),
   createdAt: z.coerce.date(),
 });
 
@@ -17,20 +17,20 @@ const userSchema = z.object({
   _id: z.string(),
   name: z.string(),
   email: z.string().email(),
-  role: z.union([z.literal("InsuranceBroker"), z.literal("Customer")]),
+  role: z.enum(["InsuranceBroker", "Customer"]),
   schedulings: z.array(schedulingSchema),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
 
 export async function getUserLoggedIn(token: string) {
-  const response = await api.get("/users/me", {
+  const response = await api.get("/customers/me", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
-  const user = userSchema.parse(response);
+  const user = userSchema.parse(response.data);
 
   return user;
 }
