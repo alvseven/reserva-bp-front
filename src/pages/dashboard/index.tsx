@@ -1,3 +1,10 @@
+import { useContext } from "react";
+
+import { useNavigate } from "react-router-dom";
+
+import { AuthContext } from "@/providers/auth";
+
+import { Scheduling } from "@/components/core/scheduling";
 import {
     Table,
     TableBody,
@@ -7,33 +14,39 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Scheduling } from "@/components/core/scheduling";
 
-import { formatDate } from "@/helpers/format-date";
-import { verifyDateIsInTheFuture } from "@/helpers/verify-date-is-in-the-future";
 import { Button } from "@/components/ui/button";
 import { User } from "@/components/ui/user";
 import { EditAccount } from "@/components/core/edit-account";
 import { Separator } from "@/components/ui/separator";
 import { DeleteAccount } from "@/components/core/delete-profile";
-import { useContext } from "react";
-import { AuthContext } from "@/providers/auth";
+
+import { formatDate } from "@/helpers/format-date";
+import { verifyDateIsInTheFuture } from "@/helpers/verify-date-is-in-the-future";
 
 export function DashboardPage() {
 
     const { user } = useContext(AuthContext)
+
+    const navigate = useNavigate()
+
     const futureSchedules = user!.schedulings.filter(scheduling => verifyDateIsInTheFuture(scheduling.date))
+
+    const logout = () => {
+        localStorage.removeItem('@reserva-bp:token')
+        navigate('/')
+    }
 
     return (
         <div className="flex gap-4 w-full">
             <aside className="flex flex-col gap-4 bg-slate-800 bg-opacity-15 p-8 rounded w-1/5 max-w-64 h-dvh">
-                <User name="Samuel Santos" />
+                {user && <User name={user.name} />}
                 <Separator className="my-1" />
                 {user?.role === "Customer" && <Scheduling />}
                 <EditAccount />
                 <Separator className="my-1" />
                 <DeleteAccount />
-                <Button className="bg-transparent hover:bg-blue-900 hover:bg-opacity-20 border border-red-500 text-xs lg:text-sm">
+                <Button className="bg-transparent hover:bg-blue-900 hover:bg-opacity-20 border border-red-500 text-xs lg:text-sm" onClick={logout}>
                     Sair
                 </Button>
             </aside>

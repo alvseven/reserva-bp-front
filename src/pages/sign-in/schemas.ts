@@ -11,4 +11,4 @@ export const signInFormSchema = z.object({
     .or(z.literal("insurance-broker")),
 });
 
-export type SignInFormData = z.infer<typeof signInFormSchema>;
+export type LoginData = z.infer<typeof signInFormSchema>;

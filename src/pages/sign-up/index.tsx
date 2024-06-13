@@ -1,33 +1,73 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
+
+import { AuthContext } from "@/providers/auth";
 
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
-import { SignUpFormSchema, signUpFormSchema } from "./schemas";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { type CreateAccountData, signUpFormSchema } from "./schemas";
+import { createCustomer } from "@/services/customers/create-customer";
 
 export function SignUpPage() {
 
     const [passwordIsVisible, setPasswordIsVisible] = useState(false)
+    const { setUser } = useContext(AuthContext)
 
-    const form = useForm<SignUpFormSchema>({
+    const navigate = useNavigate()
+
+    const form = useForm<CreateAccountData>({
         resolver: zodResolver(signUpFormSchema),
         defaultValues: {
-            username: "",
+            name: "",
             email: "",
             password: "",
             confirmPassword: ""
         },
     })
 
-    function signUp() {
+    const { toast } = useToast()
 
+    async function signUp(data: CreateAccountData) {
+        const { role, ...createAccountData } = data
+        try {
+            if (role === "Customer") {
+                const createdCustomer = await createCustomer({ ...createAccountData })
+                setUser(createdCustomer)
+                navigate('/')
+                toast({
+                    title: 'Conta criada',
+                    description: 'Conta criada com sucesso'
+                })
+            }
+        }
+        catch (error) {
+            if (isAxiosError(error) && error.response?.status) {
+                const toastTitle =
+                    error.response.status === 409
+                        ? "Não foi possível criar a conta"
+                        : "Oops, algo de errado aconteceu";
+
+                const toastDescription =
+                    error.response.status === 409
+                        ? "Email já cadastrado"
+                        : "Tente realizar o login novamente ";
+
+                toast({
+                    title: toastTitle,
+                    description: toastDescription,
+                    variant: "destructive",
+                });
+            }
+        }
     }
 
     return (
@@ -41,10 +81,10 @@ export function SignUpPage() {
                 </FormDescription>
                 <FormField
                     control={form.control}
-                    name="username"
+                    name="name"
                     render={({ field }) => (
                         <FormItem className="w-full">
-                            <FormLabel className="text-slate-300">Nome de usuário</FormLabel>
+                            <FormLabel className="text-slate-300">Nome</FormLabel>
                             <FormControl>
                                 <Input
                                     placeholder="alv"
@@ -118,13 +158,13 @@ export function SignUpPage() {
                         <FormItem className="w-full h-20">
                             <FormLabel className="text-slate-300">Tipo de usuário</FormLabel>
                             <FormControl>
-                                <Select onValueChange={field.onChange} defaultValue="customer" >
+                                <Select onValueChange={field.onChange}>
                                     <SelectTrigger className="bg-blue-950 bg-opacity-30 h-12 text-slate-300">
                                         <SelectValue placeholder="Selecionar" className="text-slate-200" />
                                     </SelectTrigger>
                                     <SelectContent className="max-h-72">
-                                        <SelectItem value="customer">Cliente</SelectItem>
-                                        <SelectItem value="insurance-broker">Corretor de seguros</SelectItem>
+                                        <SelectItem value="Customer">Cliente</SelectItem>
+                                        <SelectItem value="InsuranceBroker">Corretor de seguros</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </FormControl>

@@ -1,29 +1,36 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isAxiosError } from "axios";
+
+import { AuthContext } from "@/providers/auth";
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-
 import { Form, FormField, FormMessage, FormControl, FormItem, FormLabel } from "../ui/form";
-
 import { Input } from "../ui/input";
-import { useToast } from "../ui/use-toast";
 import { Button } from "../ui/button";
+import { useToast } from "../ui/use-toast";
+import { Checkbox } from "../ui/checkbox";
+
 
 import { type EditAccountData, editAccountSchema } from "./schemas/edit-account";
-import { Checkbox } from "../ui/checkbox";
+
+import { updateCustomer } from "@/services/customers/update-customer";
+import { getCustomerLoggedIn } from "@/services/customers/get-customer-logged-in";
 
 export function EditAccount() {
 
     const [dialogIsOpen, setDialogIsOpen] = useState(false)
     const [passwordIsVisible, setPasswordIsVisible] = useState(false)
 
+    const { user, setUser } = useContext(AuthContext)
+
     const form = useForm<EditAccountData>({
         resolver: zodResolver(editAccountSchema),
         defaultValues: {
-            name: "",
-            email: "",
+            name: user?.name ?? "",
+            email: user?.email ?? "",
             password: "",
             confirmPassword: ""
         },
@@ -31,19 +38,39 @@ export function EditAccount() {
 
     const { toast } = useToast()
 
-    function editAccount(data: EditAccountData) {
-        try {
-            console.log('data: ', data)
-            toast({
-                title: 'Dados alterados',
-                description: 'Perfil atualizado com sucesso',
-                className: "max-w-[40rem]"
-            })
-            form.reset()
-            setDialogIsOpen(false)
-        }
-        catch (error) {
-            console.log('Error: ', error)
+    async function editAccount(data: EditAccountData) {
+        const token = localStorage.getItem("@reserva-bp:token")
+        if (token) {
+            try {
+                await updateCustomer({ token, ...data })
+                toast({
+                    title: 'Dados alterados',
+                    description: 'Perfil atualizado com sucesso',
+                    className: "max-w-[40rem]"
+                })
+                form.reset()
+                setDialogIsOpen(false)
+                user?.role === "Customer" ? setUser(await getCustomerLoggedIn(token)) : ''
+            }
+            catch (error) {
+                if (isAxiosError(error) && error.response?.status) {
+                    const toastTitle =
+                        error.response.status === 409
+                            ? "Não foi possível atualizar a conta"
+                            : "Oops, algo de errado aconteceu";
+
+                    const toastDescription =
+                        error.response.status === 409
+                            ? "Email já cadastrado"
+                            : "Tente realizar o login novamente ";
+
+                    toast({
+                        title: toastTitle,
+                        description: toastDescription,
+                        variant: "destructive",
+                    });
+                }
+            }
         }
     }
 
@@ -67,7 +94,7 @@ export function EditAccount() {
                 <Form {...form}>
                     <form
                         className="flex flex-col gap-6"
-                        id="edit-Account"
+                        id="edit-account"
                         onSubmit={form.handleSubmit(editAccount)}
                     >
                         <FormField
@@ -157,7 +184,7 @@ export function EditAccount() {
                 </Form>
                 <DialogFooter className="flex justify-center sm:justify-center items-center gap-4 mt-8 w-full">
                     <Button type="submit" onClick={closeDialog} className="bg-transparent py-5 border border-red-500">Cancelar</Button>
-                    <Button type="submit" form="edit-Account" className="border-green-500 bg-transparent py-5 border">Salvar alterações</Button>
+                    <Button type="submit" form="edit-account" className="border-green-500 bg-transparent py-5 border">Salvar alterações</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

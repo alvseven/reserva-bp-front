@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 
+import { AuthContext } from "@/providers/auth";
+
 import {
     Form,
     FormControl,
@@ -18,11 +20,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-
-import { type SignInFormData, signInFormSchema } from "./schemas";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AuthContext } from "@/providers/auth";
-import { customerLogin } from "@/services/customer-login";
+
+
+import { type LoginData, signInFormSchema } from "./schemas";
+import { customerLogin } from "@/services/customers/customer-login";
 
 export function SignInPage() {
 
@@ -32,7 +34,7 @@ export function SignInPage() {
 
     const navigate = useNavigate()
 
-    const form = useForm<SignInFormData>({
+    const form = useForm<LoginData>({
         resolver: zodResolver(signInFormSchema),
         defaultValues: {
             email: "",
@@ -42,7 +44,7 @@ export function SignInPage() {
 
     const { toast } = useToast();
 
-    async function signIn(data: SignInFormData) {
+    async function signIn(data: LoginData) {
         try {
             const userLogged = await customerLogin(data)
 

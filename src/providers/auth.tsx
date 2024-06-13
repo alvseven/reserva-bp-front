@@ -1,8 +1,8 @@
-import { type ReactNode, createContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { type ReactNode, type Dispatch, type SetStateAction, createContext, useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import { getUserLoggedIn } from "@/services/get-user-logged-in";
+import { getCustomerLoggedIn } from "@/services/customers/get-customer-logged-in";
 
 type Scheduling = {
     _id: string
@@ -40,10 +40,10 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         async function autoLogin() {
-            const token = localStorage.getItem("@reserva-bp:token");
+            const token = localStorage.getItem('@reserva-bp:token')
             if (token) {
                 try {
-                    const userLogged = await getUserLoggedIn(token)
+                    const userLogged = await getCustomerLoggedIn(token)
                     setUser(userLogged);
                     navigate("/dashboard", { replace: true });
                 } catch (error) {
@@ -58,7 +58,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         <AuthContext.Provider
             value={{
                 user,
-                setUser
+                setUser,
             }}
         >
             {children}
